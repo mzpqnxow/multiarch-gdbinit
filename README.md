@@ -1,0 +1,2 @@
+# multiarch-gdbinit
+multiarch-gdbinit
