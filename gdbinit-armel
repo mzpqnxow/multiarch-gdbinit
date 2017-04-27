@@ -1,0 +1,377 @@
+#
+# MIPS .gdbinit
+#
+# thx to mammon for "the" original gdbinit :>
+# some of his stuff is in here verbatim, the x86
+# specific stuff was obviously either removed (i.e. flags)
+# or replaced (i.e. regs)
+
+define bpl
+ info breakpoints
+end
+document bpl
+List breakpoints
+end
+
+define bp
+ set $SHOW_CONTEXT = 1
+ break * $arg0
+end
+document bp
+Set a breakpoint on address
+Usage: bp addr
+end
+
+define bpc 
+ clear $arg0
+end
+document bpc
+Clear breakpoint at function/address
+Usage: bpc addr
+end
+
+define bpe
+ enable $arg0
+end
+document bpe
+Enable breakpoint #
+Usage: bpe num
+end
+
+define bpd
+ disable $arg0
+end
+document bpd
+Disable breakpoint #
+Usage: bpd num
+end
+
+define bpt
+ set $SHOW_CONTEXT = 1
+ tbreak $arg0
+end
+document bpt
+Set a temporary breakpoint on address
+Usage: bpt addr
+end
+
+define bpm
+ set $SHOW_CONTEXT = 1
+ awatch $arg0
+end
+document bpm
+Set a read/write breakpoint on address
+Usage: bpm addr
+end
+
+# ______________process information____________
+define argv
+ show args
+end
+document argv
+Print program arguments
+end
+
+define stack
+ info stack
+end
+document stack
+Print call stack
+end
+
+define frame
+ info frame
+ info args
+ info locals
+end
+document frame
+Print stack frame
+end
+
+define reg
+  printf "\n"
+  printf "a0: 0x%.8x  a1: 0x%.8x a2: 0x%.8x a3: 0x%.8x\n", $a0, $a1, $a2, $a3
+  printf "t0: 0x%.8x  t1: 0x%.8x t2: 0x%.8x t3: 0x%.8x\n", $t0, $t1, $t2, $t3
+  printf "s0: 0x%.8x  s1: 0x%.8x s2: 0x%.8x s3: 0x%.8x\n", $s0, $s1, $s2, $s3
+  printf "s4: 0x%.8x  s5: 0x%.8x s6: 0x%.8x s7: 0x%.8x\n", $s4, $s5, $s6, $s7
+  printf "s8: 0x%.8x  t0: 0x%.8x t1: 0x%.8x t2: 0x%.8x\n", $s8, $t0, $t1, $t2
+  printf "t3: 0x%.8x  t4: 0x%.8x t5: 0x%.8x t6: 0x%.8x\n", $t3, $t4, $t5, $t6
+  printf "t7: 0x%.8x  t8: 0x%.8x t9: 0x%.8x v0: 0x%.8x\n", $t7, $t8, $t9, $v0
+  printf "v1: 0x%.8x  sp: 0x%.8x fp: 0x%.8x gp: 0x%.8x\n", $v1, $sp, $fp, $gp
+  printf "ra: 0x%.8x\n", $ra
+end
+document reg
+Print CPU registers
+end
+
+define func
+ info functions
+end
+document func
+Print functions in target
+end
+
+define var
+ info variables
+end
+document var
+Print variables (symbols) in target
+end
+
+define lib
+ info sharedlibrary
+end
+document lib
+Print shared libraries linked to target
+end
+
+define sig
+ info signals
+end
+document sig
+Print signal actions for target
+end
+
+define thread
+ info threads
+end
+document thread
+Print threads in target
+end
+
+define dis
+ disassemble $arg0
+end
+document dis
+Disassemble address
+Usage: dis addr
+end
+
+# ________________hex/ascii dump an address______________
+define ascii_char
+ set $_c=*(unsigned char *)($arg0)
+ if ( $_c < 0x20 || $_c > 0x7E )
+  printf "."
+ else
+  printf "%c", $_c
+ end
+end
+document ascii_char
+Print the ASCII value of arg0 or '.' if value is unprintable
+end
+
+define hex_quad
+ printf "%02X %02X %02X %02X  %02X %02X %02X %02X",                          \
+		*(unsigned char*)($arg0), *(unsigned char*)($arg0 + 1),      \
+		*(unsigned char*)($arg0 + 2), *(unsigned char*)($arg0 + 3),  \
+		*(unsigned char*)($arg0 + 4), *(unsigned char*)($arg0 + 5),  \
+		*(unsigned char*)($arg0 + 6), *(unsigned char*)($arg0 + 7)
+end
+document hex_quad
+Print eight hexadecimal bytes starting at arg0
+end
+
+define hexdump
+ printf "0x%08X : ", $arg0
+ hex_quad $arg0
+ printf " - "
+ hex_quad ($arg0+8)
+ printf " "
+
+ ascii_char ($arg0)
+ ascii_char ($arg0+1)
+ ascii_char ($arg0+2)
+ ascii_char ($arg0+3)
+ ascii_char ($arg0+4)
+ ascii_char ($arg0+5)
+ ascii_char ($arg0+6)
+ ascii_char ($arg0+7)
+ ascii_char ($arg0+8)
+ ascii_char ($arg0+9)
+ ascii_char ($arg0+0xA)
+ ascii_char ($arg0+0xB)
+ ascii_char ($arg0+0xC)
+ ascii_char ($arg0+0xD)
+ ascii_char ($arg0+0xE)
+ ascii_char ($arg0+0xF)
+
+ printf "\n"
+end
+document hexdump
+Display a 16-byte hex/ASCII dump of arg0
+end
+
+# ________________data window__________________
+define ddump
+ printf "[0x%08X]------------------------", $data_addr
+ printf "---------------------------------[ data]\n"
+ set $_count=0
+ while ( $_count < $arg0 )
+  set $_i=($_count*0x10)
+  hexdump ($data_addr+$_i)
+  set $_count++
+ end
+end
+document ddump
+Display $arg0 lines of hexdump for address $data_addr
+end
+
+define dd
+ if ( ($arg0 & 0x40000000) || ($arg0 & 0x08000000) || ($arg0 & 0xBF000000) )
+  set $data_addr=$arg0
+  ddump 0x10
+ else
+  printf "Invalid address: 0x%08X\n", $arg0
+ end
+end
+document dd
+Display 16 lines of a hex dump for $arg0
+end
+
+# ________________process context______________
+define context
+ printf "_______________________________________"
+ printf "________________________________________\n"
+ reg
+ printf "[%08X]------------------------", $sp
+ printf "---------------------------------[stack]\n"
+ hexdump $sp+0x30
+ hexdump $sp+0x20
+ hexdump $sp+0x10
+ hexdump $sp
+ printf "[%08X]------------------------", $pc
+ printf "---------------------------------[ code]\n"
+ x /6i $pc
+ printf "---------------------------------------"
+ printf "---------------------------------------\n"
+end
+document context
+Print regs, stack, and disassemble
+end
+
+define context-on
+ set $SHOW_CONTEXT = 1
+end
+document context-on
+Enable display of context on every program stop
+end
+
+define context-off
+ set $SHOW_CONTEXT = 1
+end
+document context-on
+Disable display of context on every program stop
+end
+
+# ________________process control______________
+define n
+ ni
+end
+document n
+Step one instruction
+end
+
+define init
+ set $SHOW_CONTEXT = 1
+ set $SHOW_NEST_INSN=0
+ tbreak _init
+ r
+end
+document init
+Run program; break on _init()
+end
+
+define start
+ set $SHOW_CONTEXT = 1
+ set $SHOW_NEST_INSN=0
+ tbreak _start
+ r
+end
+document start
+Run program; break on _start()
+end
+
+define sstart
+ set $SHOW_CONTEXT = 1
+ set $SHOW_NEST_INSN=0
+ tbreak __libc_start_main
+ r
+end
+document sstart
+Run program; break on __libc_start_main(). Useful for stripped executables.
+end
+
+define main
+ set $SHOW_CONTEXT = 1
+ set $SHOW_NEST_INSN=0
+ tbreak main
+ r
+end
+document main
+Run program; break on main()
+end
+
+def c
+continue
+end
+
+document c
+it does a continue
+end
+
+define sopath
+ set solib-search-path $arg0
+end
+document sopath
+Alias for set solib-search-path
+Usage: sopath /path/to/libs
+end
+
+def f
+ file $arg0
+ end
+document f
+Alias for file
+Usage: f somebinaryd
+end
+
+set confirm off
+set verbose off
+set prompt gdb> 
+set output-radix 10
+set input-radix 10
+set height 0
+set width 0
+set $SHOW_CONTEXT=1
+set $SHOW_NEST_INSN=1
+set solib-search-path .
+
+define thumbon
+set arm force-mode thumb
+end
+document thumbon
+set thumb mode
+end
+
+define thumboff
+set arm force-mode arm
+end
+document thumboff
+set thumb mode
+end
+
+define thumbauto
+set arm force-mode auto
+end
+document thumbauto
+set thumb mode
+end
+
+# Useful repetitive command(s)
+define go
+target remote 127.0.0.1:12345
+end
+document go
+attach
+end
+

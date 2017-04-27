@@ -1,0 +1,350 @@
+#
+# ARMEL .gdbinit
+#
+# thx to mammon for "the" original gdbinit :>
+# some of his stuff is in here verbatim, the x86
+# specific stuff was obviously either removed (i.e. flags)
+# or replaced (i.e. regs)
+
+define bp
+ set $SHOW_CONTEXT = 1
+ break * $arg0
+end
+document bp
+Set a breakpoint on address
+Usage: bp addr
+end
+
+define bpc 
+  clear $arg0
+end
+
+document bpc
+  Clear breakpoint at function/address
+  Usage: bpc addr
+end
+
+define bpe
+ enable $arg0
+end
+
+document bpe
+  Enable breakpoint #
+  Usage: bpe num
+end
+
+define bpd
+  disable $arg0
+end
+
+document bpd
+  Disable breakpoint #
+  Usage: bpd num
+end
+
+define bpt
+ set $SHOW_CONTEXT = 1
+ tbreak $arg0
+end
+
+document bpt
+Set a temporary breakpoint on address
+  Usage: bpt addr
+end
+
+define bpm
+ set $SHOW_CONTEXT = 1
+ awatch $arg0
+end
+
+document bpm
+  Set a read/write breakpoint on address
+  Usage: bpm addr
+end
+
+define argv
+ show args
+end
+
+document argv
+  Print program arguments
+end
+
+define lib
+ info sharedlibrary
+end
+document lib
+  Print shared libraries linked to target
+end
+
+define sig
+ info signals
+end
+document sig
+  Print signal actions for target
+end
+
+define dis
+ disassemble $arg0
+end
+document dis
+Disassemble address
+Usage: dis addr
+end
+
+define ascii_char
+ set $_c=*(unsigned char *)($arg0)
+ if ( $_c < 0x20 || $_c > 0x7E )
+  printf "."
+ else
+  printf "%c", $_c
+ end
+end
+
+document ascii_char
+  Print the ASCII value of arg0 or '.' if value is unprintable
+end
+
+define hex_quad
+ printf "%02X %02X %02X %02X  %02X %02X %02X %02X",                          \
+		*(unsigned char*)($arg0), *(unsigned char*)($arg0 + 1),      \
+		*(unsigned char*)($arg0 + 2), *(unsigned char*)($arg0 + 3),  \
+		*(unsigned char*)($arg0 + 4), *(unsigned char*)($arg0 + 5),  \
+		*(unsigned char*)($arg0 + 6), *(unsigned char*)($arg0 + 7)
+end
+
+document hex_quad
+  Print eight hexadecimal bytes starting at arg0
+end
+
+define hexdump
+ printf "%s %08X : ", $arg0, $arg1
+ hex_quad $arg1
+ printf " - "
+ hex_quad ($arg1+8)
+ printf "\t"
+
+ ascii_char ($arg1)
+ ascii_char ($arg1+1)
+ ascii_char ($arg1+2)
+ ascii_char ($arg1+3)
+ ascii_char ($arg1+4)
+ ascii_char ($arg1+5)
+ ascii_char ($arg1+6)
+ ascii_char ($arg1+7)
+ ascii_char ($arg1+8)
+ ascii_char ($arg1+9)
+ ascii_char ($arg1+0xA)
+ ascii_char ($arg1+0xB)
+ ascii_char ($arg1+0xC)
+ ascii_char ($arg1+0xD)
+ ascii_char ($arg1+0xE)
+ ascii_char ($arg1+0xF)
+ printf "\n"
+end
+
+document hexdump
+  Display a 16-byte hex/ASCII dump of arg1 with label arg0
+end
+
+define context
+ printf "_______________________________________"
+ printf "________________________________________\n"
+ regs
+ printf "STACK @ 0x%.8x\n", $sp
+ printf "---------------------------------------"
+ printf "---------------------------------------\n"
+
+ hexdump "$sp[+0x30]" $sp+0x30
+ hexdump "$sp[+0x20]" $sp+0x20
+ hexdump "$sp[+0x10]" $sp+0x10
+ hexdump "$sp[=0x00]" $sp
+ hexdump "$sp[-0x20]" $sp-0x10
+ hexdump "$sp[-0x20]" $sp-0x20
+ hexdump "$sp[-0x30]" $sp-0x30
+ printf "CODE @ 0x%.8x\n", $pc
+ printf "-------------------------\n"
+ x /6i $pc
+ printf "---------------------------------------"
+ printf "---------------------------------------\n"
+end
+
+document context
+  Print regs, stack, ds:esi, and disassemble cs:eip
+end
+
+define context-on
+ set $SHOW_CONTEXT = 1
+end
+
+document context-on
+  Enable display of context on every program stop
+end
+
+define context-off
+ set $SHOW_CONTEXT = 1
+end
+
+document context-on
+  Disable display of context on every program stop
+end
+
+define n
+ ni
+end
+document n
+  Step one instruction
+end
+
+define pret
+ finish
+end
+document pret
+Step out of current call
+end
+
+define init
+ set $SHOW_CONTEXT=1
+ set $SHOW_NEST_INSN=0
+ tbreak _init
+ r
+end
+document init
+Run program; break on _init()
+end
+
+define start
+ set $SHOW_CONTEXT = 1
+ set $SHOW_NEST_INSN=0
+ tbreak _start
+ r
+end
+document start
+Run program; break on _start()
+end
+
+define main
+ set $SHOW_CONTEXT=1
+ set $SHOW_NEST_INSN=0
+ tbreak main
+ r
+end
+document main
+Run program; break on main()
+end
+
+#
+# Sometimes gdb i r breaks, but it lets you access registers individually
+# This is most common when debugging remote targets. It's nice to choose
+# your own format for register output anyway
+#
+define regs
+	printf "\n"
+	printf "$a0: 0x%.8x    $a1:0x%.8x\n", $a0, $a1
+  printf "$a2: 0x%.8x    $a3:0x%.8x\n", $a2, $a3
+	printf "--\n"
+  printf "$t0: 0x%.8x    $t1: 0x%.8x    $t2: 0x%.8x\n", $t0, $t1, $t2
+  printf "$t3: 0x%.8x    $t4: 0x%.8x    $t5: 0x%.8x\n", $t3, $t4, $t5
+  printf "$t6: 0x%.8x    $t7: 0x%.8x    $t8: 0x%.8x\n", $t6, $t7, $t8
+  printf "--\n"
+  printf "$t9: 0x%.8x\n", $t9
+  printf "--\n"
+  printf "$v0: 0x%.8x    $v1: 0x%.8x\n", $v0, $v1
+  printf "--\n"
+	printf "$s0: 0x%.8x    $s1: 0x%.8x    $s2: 0x%.8x\n", $s0, $s1, $s2
+	printf "$s3: 0x%.8x    $s4: 0x%.8x    $s5: 0x%.8x\n", $s3, $s4, $s5
+  printf "$s6: 0x%.8x    $s7: 0x%.8x    $s8: 0x%.8x\n", $s6, $s7, $s8
+  printf "--\n"
+  printf "$fp: 0x%.8x\n", $fp
+  printf "$sp: 0x%.8x\n", $sp
+  printf "$gp: 0x%.8x\n", $gp
+  printf "$ra: 0x%.8x\n", $ra
+  printf "$pc: 0x%.8x\n", $pc
+  printf "\n"
+  printf "-----------------------------------------------------------------\n"
+end
+document regs
+  Show registers
+end
+
+document go
+  Attach to a remote process at localhost:12345
+end
+
+def c
+  continue
+end
+
+document c
+  Continue with execution
+end
+
+# If your gdb is broken or things are crashing or exiting you
+# might need to use these. Sometimes it has to be turned off/on
+# before after you attach to a remote target process.. ??
+def fix
+  set unwindonsignal on
+end
+
+document fix
+  Turn on unwind on signal
+end
+
+def unfix
+  set unwindonsignal on
+end
+
+document unfix
+  turn on unwind on signal
+end
+
+# Tell gdb where the shared libraries are when debugging a
+# remote target
+define sopath
+  set solib-search-path $arg0
+end
+
+document sopath
+Alias for set solib-search-path
+  Usage: sopath /path/to/libs
+end
+
+# Load a file (and its symbols, if it has any)
+def f
+ file $arg0
+ end
+document f
+  Alias for file
+  Usage: f somebinaryd
+end
+
+# Remote debugging
+define go
+  target remote 127.0.0.1:12345
+end
+document go
+  Do some commands that you do often, generic alias
+end
+
+define plop
+  set unwindonsignal on
+  go
+  set unwindonsignal off
+end
+
+document plop
+  Same as go, but works around strange behavior
+end
+
+# Default GDB settings
+set confirm off
+set verbose off
+set prompt gdb> 
+set output-radix 10
+set input-radix 10
+# These make gdb never pause in its output
+set height 0
+set width 0
+# YMMV, good luck
+set $SHOW_CONTEXT=1
+set $SHOW_NEST_INSN=0
