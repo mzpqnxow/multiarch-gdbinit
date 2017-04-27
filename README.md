@@ -8,4 +8,4 @@ Use at your own risk
 
 ## License - GPLv3 - See LICENSE.md
 
-copyright@mzpqnxow.com
+copyright -at- mzpqnxow -dot- com
