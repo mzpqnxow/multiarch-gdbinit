@@ -1,5 +1,5 @@
 #
-# MIPSEL .gdbinit
+# MIPS .gdbinit
 #
 # thx to mammon for "the" original gdbinit :>
 # some of his stuff is in here verbatim, the x86
