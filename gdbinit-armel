@@ -90,15 +90,13 @@ end
 
 define reg
   printf "\n"
-  printf "a0: 0x%.8x  a1: 0x%.8x a2: 0x%.8x a3: 0x%.8x\n", $a0, $a1, $a2, $a3
-  printf "t0: 0x%.8x  t1: 0x%.8x t2: 0x%.8x t3: 0x%.8x\n", $t0, $t1, $t2, $t3
-  printf "s0: 0x%.8x  s1: 0x%.8x s2: 0x%.8x s3: 0x%.8x\n", $s0, $s1, $s2, $s3
-  printf "s4: 0x%.8x  s5: 0x%.8x s6: 0x%.8x s7: 0x%.8x\n", $s4, $s5, $s6, $s7
-  printf "s8: 0x%.8x  t0: 0x%.8x t1: 0x%.8x t2: 0x%.8x\n", $s8, $t0, $t1, $t2
-  printf "t3: 0x%.8x  t4: 0x%.8x t5: 0x%.8x t6: 0x%.8x\n", $t3, $t4, $t5, $t6
-  printf "t7: 0x%.8x  t8: 0x%.8x t9: 0x%.8x v0: 0x%.8x\n", $t7, $t8, $t9, $v0
-  printf "v1: 0x%.8x  sp: 0x%.8x fp: 0x%.8x gp: 0x%.8x\n", $v1, $sp, $fp, $gp
-  printf "ra: 0x%.8x\n", $ra
+  printf "r0:  0x%.8x  r1:  0x%.8x r2:  0x%.8x r3:  0x%.8x\n", $r0, $r1, $r2, $r3
+  printf "r4:  0x%.8x  r5:  0x%.8x r6:  0x%.8x r7:  0x%.8x\n", $r4, $r5, $r6, $r7
+  printf "r8:  0x%.8x  r9:  0x%.8x r10: 0x%.8x r11: 0x%.8x\n", $r8, $r9, $r10, $r11
+  printf "r12: 0x%.8x\n", $r12
+  printf "sp:  0x%.8x\n", $sp
+  printf "lr:  0x%.8x\n", $lr
+  # sp lr 
 end
 document reg
 Print CPU registers
