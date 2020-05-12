@@ -327,13 +327,13 @@ Alias for set solib-search-path
 Usage: sopath /path/to/libs
 end
 
-def f
- file $arg0
- end
-document f
-Alias for file
-Usage: f somebinaryd
-end
+# def f
+# file $arg0
+# end
+#document f
+#Alias for file
+#Usage: f somebinaryd
+#end
 
 set confirm off
 set verbose off
