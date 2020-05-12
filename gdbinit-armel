@@ -311,13 +311,13 @@ document main
 Run program; break on main()
 end
 
-def c
-continue
-end
+# def c
+# continue
+# end
 
-document c
-it does a continue
-end
+# document c
+# it does a continue
+# end
 
 define sopath
  set solib-search-path $arg0
