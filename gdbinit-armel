@@ -290,48 +290,40 @@ Run program; break on _start()
 end
 
 define sstart
- set $SHOW_CONTEXT = 1
- set $SHOW_NEST_INSN=0
- tbreak __libc_start_main
- r
+  set $SHOW_CONTEXT = 1
+  set $SHOW_NEST_INSN=0
+  tbreak __libc_start_main
+  r
 end
 document sstart
 Run program; break on __libc_start_main(). Useful for stripped executables.
 end
 
 define main
- set $SHOW_CONTEXT = 1
- set $SHOW_NEST_INSN=0
- tbreak main
- r
+  set $SHOW_CONTEXT = 1
+  set $SHOW_NEST_INSN=0
+  tbreak main
+  r
 end
 document main
 Run program; break on main()
 end
 
-# def c
-# continue
-# end
+def ct
+  continue
+end
 
-# document c
-# it does a continue
-# end
+document ct
+  Continue with execution
+end
 
 define sopath
- set solib-search-path $arg0
+  set solib-search-path $arg0
 end
 document sopath
 Alias for set solib-search-path
 Usage: sopath /path/to/libs
 end
-
-# def f
-# file $arg0
-# end
-#document f
-#Alias for file
-#Usage: f somebinaryd
-#end
 
 set pagination off
 set confirm off
@@ -344,6 +336,11 @@ set width 0
 set $SHOW_CONTEXT=1
 set $SHOW_NEST_INSN=1
 set solib-search-path .
+
+set history save on
+set history size unlimited
+set history filename .gdb_history
+
 
 define thumbon
 set arm force-mode thumb
@@ -368,9 +365,9 @@ end
 
 # Useful repetitive command(s)
 define go
-target remote 127.0.0.1:12345
+  target remote 127.0.0.1:12345
 end
 document go
-attach
+  Attach to remote system
 end
 
