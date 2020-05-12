@@ -335,9 +335,10 @@ end
 #Usage: f somebinaryd
 #end
 
+set pagination off
 set confirm off
 set verbose off
-set prompt gdb> 
+set prompt gdb-arm> 
 set output-radix 10
 set input-radix 10
 set height 0
